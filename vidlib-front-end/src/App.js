@@ -7,6 +7,150 @@ let defaultStyle = {
 
 }
 
+class Uploader extends Component {
+  
+
+  state = { 
+    show: false
+  }
+
+  video = {
+    name: null,
+    creator: 'Corey',
+    date: '12/28/2018',
+    videoSource: null,
+    thumbnailSource: null
+  }
+
+  showModal = () => {
+    this.setState({ show: true });
+  }
+  
+  hideModal = () => {
+    this.setState({ show: false });
+  }
+
+  hasNull(target) {
+    for (let member in target) {
+        if (target[member] == null)
+            return true;
+    }
+    return false;
+  }
+
+  createVideo(){
+
+    
+    console.log('In not null: ' + JSON.stringify(this.video));
+    fetch("http://localhost:8080/api/videos", {
+      method: "POST",
+      body: JSON.stringify(this.video),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }).then(response => response.json())
+    .then(data => {
+      console.log('Created new video: ' + data);
+    })
+
+  }
+
+
+  uploadFile(signedUrlContentType, file, extension) {
+
+    let signedURL = '';
+    let request = new XMLHttpRequest();
+    const secureURL = new URL('http://localhost:8080/api/secure');
+    secureURL.search = new URLSearchParams({fileExtension: extension});
+    this.video.name = document.getElementById('videoTitle').value;
+
+    fetch(secureURL).then(response => response.json())
+    .then(uploadData => {
+      console.log(uploadData[0]);
+      console.log(uploadData[1]);
+      console.log(typeof uploadData);
+      signedURL = uploadData[0];
+      console.log("here " + signedURL);
+      request.open('PUT', signedURL, true);
+      request.setRequestHeader('Content-Type', signedUrlContentType);
+      request.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          var percent = Math.round((event.loaded / event.total) * 100)
+          console.log(percent);
+        }
+      };
+  
+      request.onload = () => {
+        if (request.status === 200) {
+
+          if(extension === '.mp4') {
+            this.video.videoSource = 'https://s3-us-west-1.amazonaws.com/vidlib.io/' + uploadData[1];
+          } else {
+            this.video.thumbnailSource = 'https://s3-us-west-1.amazonaws.com/vidlib.io/' + uploadData[1];
+          }
+          
+          console.log('Success');
+          if(!this.hasNull(this.video)){
+            this.createVideo();
+          }
+        }
+      };
+      request.onerror = () => {
+        console.log('Error');
+      };
+      request.send(file);
+      return uploadData;
+    })
+    
+  }
+
+  render(){
+
+    return (
+      <div id ="uploadInterface">
+          <button onClick={() => this.showModal()}>Upload a video</button>
+          <Modal show={this.state.show} handleClose={this.hideModal} >
+            <div id = "uploadForm" style={{position: 'absolute', bottom: '50%', left: '40%', marginBottom: '10px'}}>
+
+              <label>Video title: </label>
+              <input id='videoTitle' type='text'/>
+              <br></br>
+
+              <label>Video file: </label>
+              <input id='videoFile' type='file'/>
+              <br></br>
+
+              <label>Thumbnail file: </label>
+              <input id='thumbnailFile' type='file'/>
+              <br></br>
+
+              <label>Description: </label>
+              <textarea id="videoDescription"></textarea>
+              <br></br>
+
+              <button onClick={() => {
+                this.uploadFile(
+                  'video/mp4', 
+                  document.getElementById('videoFile').files[0],
+                  '.mp4');
+                
+                this.uploadFile(
+                  'image/jpeg', 
+                  document.getElementById('thumbnailFile').files[0],
+                  '.jpg');
+              }}>
+                Upload
+              </button>
+
+            </div>
+          </Modal>
+
+      </div>
+    );
+
+  }
+}
+
 
 class VideoCounter extends Component {
   render() {
@@ -71,7 +215,7 @@ class App extends Component {
     this.state = 
     {
       serverData: {},
-      filterString: ''
+      filterString: '',
     };
   }
 
@@ -98,6 +242,8 @@ class App extends Component {
         {this.state.serverData[0] ?
         <div>
           <h1 style={{...defaultStyle, fontSize: '56px'}}>VidLib</h1>
+          
+          <Uploader upload={this.state.signedURL}/>
 
           <VideoCounter videos={this.state.serverData}/>
 
@@ -126,7 +272,7 @@ const Modal = ({ handleClose, show, children }) => {
       <section className='modal-main'>
         {children}
         <div>
-        <button onClick={handleClose}>
+        <button style={{position: 'absolute', bottom: '0', marginBottom: '10px'}} onClick={handleClose}>
           Close
         </button>
         </div>
