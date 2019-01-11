@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import './App.css';
+import { access } from 'fs';
 
 let defaultStyle = {
   color:  '#fff'
@@ -40,17 +41,24 @@ class Uploader extends Component {
 
   createVideo(){
 
-    
+    let headers = new Headers();
+
+    //headers.set('Authorization', 'Basic ' + window.btoa("mary:fun1234"));
+    headers.set("Content-Type", "application/json")
+    headers.append('Authorization', 'Bearer ' + localStorage.getItem('accessToken'))
+
+    console.log(localStorage.getItem('accessToken'))
+
     console.log('In not null: ' + JSON.stringify(this.video));
     fetch("http://localhost:8080/api/videos", {
       method: "POST",
       body: JSON.stringify(this.video),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    }).then(response => response.json())
+      headers: headers
+    }).then(response => response)
     .then(data => {
-      console.log('Created new video: ' + data);
+      console.log('Created new video: ' + JSON.stringify(data));
+    }).catch(error => {
+      console.log('ERROR: ' + error);
     })
 
   }
@@ -71,8 +79,10 @@ class Uploader extends Component {
       console.log(typeof uploadData);
       signedURL = uploadData[0];
       console.log("here " + signedURL);
+      
       request.open('PUT', signedURL, true);
       request.setRequestHeader('Content-Type', signedUrlContentType);
+
       request.upload.onprogress = (event) => {
         if (event.lengthComputable) {
           var percent = Math.round((event.loaded / event.total) * 100)
@@ -215,7 +225,7 @@ class App extends Component {
     this.state = 
     {
       serverData: {},
-      filterString: '',
+      filterString: ''
     };
   }
 
@@ -224,12 +234,69 @@ class App extends Component {
       this.setState({serverData: fakeServerData});
     }, 500);*/
 
-    fetch('http://localhost:8080/api/videos').then(response => response.json())
-    .then(playlistData => {
+    /*let data ={"usernameOrEmail": "mary", "password": "fun123"};
+
+    let headers = new Headers();
+
+    //headers.set('Authorization', 'Basic ' + window.btoa("mary:fun1234"));
+    headers.set("Content-Type", "application/json")
+
+    fetch("http://localhost:8080/api/auth/signin", {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: headers
+    })
+    .then(response => {
+      console.log("Authenticated Succesfully: " + JSON.stringify(response));
+
+      if (response.ok) {
+        response.json().then(json => {
+          console.log(json);
+          localStorage.setItem("accessToken", json.accessToken);
+          console.log(localStorage.getItem("accessToken"));
+        });
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem("accessToken"))
+        fetch("http://localhost:8080/api/user/me", {
+          method: "GET",
+          headers: headers
+        })
+        .then(response => {
+
+          if (response.ok) {
+            console.log("here");
+            response.json().then(json => console.log(json))
+          }
+        })
+    }}).catch(error => {
+      console.log("Authentication Error: " + error);
+    })*/
+
+    let newUser ={"firstName": "Michael", "lastName": "Scott", "username": "MScarn", "email": "mscott@dmifflin.com", "password": "password"};
+
+    fetch("http://localhost:8080/api/auth/signup", {
+      method: "POST",
+      body: JSON.stringify(newUser),
+      headers: {"Content-Type": "application/json"}
+    })
+    .then(response => {
+      console.log("Signup Succesfully: " + JSON.stringify(response));
+
+        response.json().then(json => {
+          console.log(json);
+          localStorage.setItem("accessToken", json.accessToken);
+          console.log(localStorage.getItem("accessToken"));
+        });
+    }).catch(error => {
+      console.log("Signup Error: " + error);
+    })
+
+    fetch('http://localhost:8080/api/videos')
+      .then(response => response.json())
+      .then(playlistData => {
         console.log(playlistData);
         this.setState({serverData: playlistData});
         return playlistData;
-    })
+      })
 
     setTimeout(() => {
       this.setState({filterString: ''});
@@ -251,11 +318,13 @@ class App extends Component {
             this.setState({filterString: text})
           }}/>
 
-          {this.state.serverData.filter(videos =>
-            videos.name.toLowerCase().includes(this.state.filterString.toLowerCase())
-          ).map(videos =>
-            <Video video={videos}/>
-          )}
+          <div style={{...defaultStyle, width: '80%', display: 'inline-block', float: 'right'}}>
+            {this.state.serverData.filter(videos =>
+              videos.name.toLowerCase().includes(this.state.filterString.toLowerCase())
+            ).map(videos =>
+              <Video video={videos}/>
+            )}
+          </div>
 
         </div> : <h1 style={defaultStyle}>Loading...</h1>
         }

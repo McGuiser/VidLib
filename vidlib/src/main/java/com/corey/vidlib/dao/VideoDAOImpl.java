@@ -10,7 +10,7 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 @Repository
-public class VideoDAOHibernateImpl  implements VideoDAO{
+public class VideoDAOImpl implements VideoDAO{
 
     // Define field for entitymanager
 
@@ -19,7 +19,7 @@ public class VideoDAOHibernateImpl  implements VideoDAO{
     // Set up constructor injection
 
     @Autowired
-    public VideoDAOHibernateImpl(EntityManager theEntityManager) {
+    public VideoDAOImpl(EntityManager theEntityManager) {
         entityManager = theEntityManager;
     }
 

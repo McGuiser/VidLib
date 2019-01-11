@@ -108,7 +108,7 @@ public class VideoRestController {
     }
 
     // Add mapping for GET /videos/{videoId}
-
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/videos/{videoId}")
     public Video getVideo(@PathVariable int videoId) {
 
