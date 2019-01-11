@@ -186,12 +186,49 @@ class Filter extends Component {
   }
 }
 
+class CommentSection extends Component {
+  componentDidMount(){
+    console.log(this.props);
+  }
+  
+
+  render() {
+    return(
+      <div>
+      {this.props.comments && 
+      <div style={{...defaultStyle, width: '30%', display: 'inline-block', float: 'bottom'}}>
+        {this.props.comments.map(comments =>
+          <Comment comment={comments}/>
+        )}
+      </div>}
+      </div>
+    );
+  }
+}
+
+class Comment extends Component {
+  render() {
+    return(
+      <div style={{...defaultStyle, width: '100%', display: 'inline-block', color: '#000'}}>
+        {this.props.comment.user.userName}: {this.props.comment.comment}
+      </div>
+    );
+  }
+}
+
 class Video extends Component {
 
   state = { show: false }
 
   showModal = () => {
-    this.setState({ show: true });
+    fetch('http://localhost:8080/api/' + this.props.video.id + '/comments')
+      .then(response => response.json())
+      .then(comments => {
+        console.log(comments);
+        this.setState({ show: true, 
+                        comments: comments});
+        return comments;
+      })
   }
   
   hideModal = () => {
@@ -208,6 +245,8 @@ class Video extends Component {
             <source src={this.props.video.videoSource} type="video/mp4"/>
             Your browser does not support HTML5 video.
           </video>
+          <br></br>
+          <CommentSection comments={this.state.comments}/>
         </Modal>
         <h3>{this.props.video.name}</h3>
         <h4>{this.props.video.creator}</h4>
@@ -234,7 +273,7 @@ class App extends Component {
       this.setState({serverData: fakeServerData});
     }, 500);*/
 
-    /*let data ={"usernameOrEmail": "mary", "password": "fun123"};
+    let data ={"usernameOrEmail": "mary", "password": "fun123"};
 
     let headers = new Headers();
 
@@ -269,8 +308,9 @@ class App extends Component {
         })
     }}).catch(error => {
       console.log("Authentication Error: " + error);
-    })*/
+    })
 
+    /*
     let newUser ={"firstName": "Michael", "lastName": "Scott", "username": "MScarn", "email": "mscott@dmifflin.com", "password": "password"};
 
     fetch("http://localhost:8080/api/auth/signup", {
@@ -288,7 +328,7 @@ class App extends Component {
         });
     }).catch(error => {
       console.log("Signup Error: " + error);
-    })
+    })*/
 
     fetch('http://localhost:8080/api/videos')
       .then(response => response.json())

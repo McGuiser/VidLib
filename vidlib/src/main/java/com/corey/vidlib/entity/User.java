@@ -1,6 +1,7 @@
 package com.corey.vidlib.entity;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
 import java.util.Collection;
 
 @Entity

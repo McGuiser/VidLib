@@ -1,22 +1,20 @@
 package com.corey.vidlib.entity;
 
-import javax.persistence.Column;
+import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@PrimaryKeyJoinColumn(name="entity_id")
 @Table(name="video")
-public class Video {
+public class Video extends com.corey.vidlib.entity.Entity{
 
     // Define fields
 
-    @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name="id")
-    private int id;
+    /*@Id
+    @OneToOne(mappedBy = "id")
+    @JoinColumn(name="entity_id")
+    private int id;*/
 
     @Column(name="name")
     private String name;
@@ -48,13 +46,13 @@ public class Video {
 
     // Define getters/setters
 
-    public int getId() {
+   /* public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
+    }*/
 
     public String getName() {
         return name;
@@ -101,7 +99,7 @@ public class Video {
     @Override
     public String toString() {
         return "Video{" +
-                "id=" + id +
+                //"id=" + id +
                 ", name='" + name + '\'' +
                 ", creator='" + creator + '\'' +
                 ", date=" + date +
