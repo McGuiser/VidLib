@@ -38,6 +38,12 @@ public class CommentServiceImpl implements CommentService{
 
     @Override
     @Transactional
+    public Comment findByUserId(int userId) {
+        return commentDao.findByUserId(userId);
+    }
+
+    @Override
+    @Transactional
     public void save(Comment theComment) {
         commentDao.save(theComment);
     }

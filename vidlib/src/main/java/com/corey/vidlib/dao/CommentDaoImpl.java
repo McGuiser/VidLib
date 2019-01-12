@@ -53,7 +53,14 @@ public class CommentDaoImpl implements CommentDao{
 
         // Get the video
 
-        Comment theComment = currentSession.get(Comment.class, commentNumber);
+        Query<Comment> theQuery = currentSession.createQuery("from Comment where commentNumber=:commentNumber", Comment.class);
+        theQuery.setParameter("commentNumber", commentNumber);
+        Comment theComment = null;
+        try {
+            theComment = theQuery.getSingleResult();
+        } catch (Exception e) {
+            theComment = null;
+        }
 
         // Return the video
 
@@ -62,6 +69,22 @@ public class CommentDaoImpl implements CommentDao{
 
     @Override
     public Comment findByEntityId(int theId) {
+
+        // Get the current hibernate session
+
+        Session currentSession = entityManager.unwrap(Session.class);
+
+        // Get the video
+
+        Comment theComment = currentSession.get(Comment.class, theId);
+
+        // Return the video
+
+        return theComment;
+    }
+
+    @Override
+    public Comment findByUserId(int theId) {
 
         // Get the current hibernate session
 

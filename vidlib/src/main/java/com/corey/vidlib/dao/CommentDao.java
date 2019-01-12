@@ -13,6 +13,8 @@ public interface CommentDao {
 
     public Comment findByEntityId(int entityId);
 
+    public Comment findByUserId(int theId);
+
     public void save(Comment theComment);
 
     public void deleteByCommentNumber(int commentNumber);

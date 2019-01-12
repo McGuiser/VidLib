@@ -13,6 +13,8 @@ public interface CommentService {
 
     public Comment findByEntityId(int entityId);
 
+    public Comment findByUserId(int userId);
+
     public void save(Comment theComment);
 
     public void deleteByCommentNumber(int commentNumber);
