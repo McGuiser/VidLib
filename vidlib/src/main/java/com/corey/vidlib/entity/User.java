@@ -1,5 +1,8 @@
 package com.corey.vidlib.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
 import javax.persistence.Entity;
 import java.util.Collection;
@@ -16,6 +19,7 @@ public class User {
 	@Column(name = "username")
 	private String userName;
 
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(name = "password")
 	private String password;
 

@@ -1,5 +1,7 @@
 package com.corey.vidlib.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import javax.persistence.Entity;
 import java.io.Serializable;
@@ -7,6 +9,7 @@ import java.io.Serializable;
 @Entity
 @IdClass(CommentID.class)
 @Table(name="entity_comment")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Comment implements Serializable {
 
     @Id
